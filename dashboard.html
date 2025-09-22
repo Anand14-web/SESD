@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SBI Banking — Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-bg">
+  <div class="overlay"></div>
+  <header class="navbar">
+    <h2>Welcome to SBI Dashboard</h2>
+    <nav>
+      <a href="statements.html">Bank Statements</a>
+      <a href="index.html">Logout</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <h3>Your Accounts</h3>
+    <div id="accountsList"></div>
+
+    <h3 style="margin-top:20px">Quick Info</h3>
+    <p><b>Total Accounts:</b> <span id="totalAccounts"></span></p>
+    <p><b>Total Balance:</b> ₹ <span id="totalBalance"></span></p>
+  </main>
+
+  <script src="bank.js"></script>
+  <script>
+    const b = BankServer.getInstance();
+    refreshDashboard();
+
+    function refreshDashboard(){
+      const accounts = b.listAccounts();
+      document.getElementById("totalAccounts").textContent = b.getCount();
+      document.getElementById("totalBalance").textContent = b.getTotalBalance().toFixed(2);
+
+      document.getElementById("accountsList").innerHTML =
+        accounts.map(a=>`<div class="acct"><b>${a.name}</b> — ₹${a.balance.toFixed(2)} (${a.id})</div>`).join('');
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SBI Banking — Statements</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="statements-bg">
+  <div class="overlay"></div>
+  <header class="navbar">
+    <h2>SBI Bank Statements</h2>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="index.html">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <table>
+      <thead>
+        <tr><th>Time</th><th>Type</th><th>Details</th><th>Amount</th></tr>
+      </thead>
+      <tbody id="txBody"></tbody>
+    </table>
+  </main>
+
+  <script src="bank.js"></script>
+  <script>
+    const b = BankServer.getInstance();
+    const txs = b.getTransactions(50);
+    document.getElementById("txBody").innerHTML =
+      txs.map(t=>`<tr>
+        <td>${new Date(t.time).toLocaleString()}</td>
+        <td>${t.type}</td>
+        <td>${t.details}</td>
+        <td>${t.amount>0? '₹'+t.amount.toFixed(2) : '₹'+t.amount.toFixed(2)}</td>
+      </tr>`).join('');
+  </script>
+</body>
+</html>
+
+
